@@ -1,53 +1,33 @@
 let localStream = null;
 
-const generateVideo = (video, audio) => {
-  navigator.mediaDevices.getUserMedia({ video, audio }).then((stream) => {
-    const video = document.getElementById("local");
-
-    video.srcObject = stream;
-    video.play();
-  });
+const playVideoAndAudio = () => {
+  const video = document.getElementById("local");
+  video.srcObject = localStream;
+  video.play();
 };
 
-let camera = null;
-let audio = null;
+const generateVideo = () => {
+  navigator.mediaDevices
+    .getUserMedia({ video: true, audio: true })
+    .then((stream) => {
+      localStream = stream;
+      playVideoAndAudio();
+    });
+};
 
-const cameraOff = document.getElementById("off-camera");
-const audioOff = document.getElementById("off-audio");
-const cameraOn = document.getElementById("on-camera");
-const audioOn = document.getElementById("on-audio");
-const start = document.getElementById("start");
+const cameraOffOrOn = document.getElementById("off-camera");
+const audioOffOrOn = document.getElementById("off-audio");
 
-start.addEventListener("click", () => {
-  camera = true;
-  audio = true;
-  generateVideo(camera, audio);
+cameraOffOrOn.addEventListener("click", () => {
+  localStream
+    .getVideoTracks()
+    .forEach((track) => (track.enabled = !track.enabled));
 });
 
-cameraOff.addEventListener("click", () => {
-  cameraOff.style.display = "none";
-  cameraOn.style.display = "flex";
-  camera = false;
-  generateVideo(camera, audio);
+audioOffOrOn.addEventListener("click", () => {
+  localStream
+    .getAudioTracks()
+    .forEach((track) => (track.enabled = !track.enabled));
 });
 
-audioOff.addEventListener("click", () => {
-  audioOff.style.display = "none";
-  audioOn.style.display = "flex";
-  audio = false;
-  generateVideo(camera, audio);
-});
-
-cameraOn.addEventListener("click", () => {
-  cameraOff.style.display = "inline";
-  cameraOn.style.display = "none";
-  camera = true;
-  generateVideo(camera, audio);
-});
-
-audioOn.addEventListener("click", () => {
-  audioOff.style.display = "inline";
-  audioOn.style.display = "none";
-  audio = true;
-  generateVideo(camera, audio);
-});
+generateVideo();
